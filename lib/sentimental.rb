@@ -1,4 +1,4 @@
-require_relative 'file_reader'
+require_relative "file_reader"
 
 class Sentimental
   include FileReader
@@ -20,9 +20,9 @@ class Sentimental
 
     initial_scoring = {score: 0, current_influencer: 1.0}
 
-    extract_words_with_n_grams(string).inject(initial_scoring) do |current_scoring, word|
+    extract_words_with_n_grams(string).inject(initial_scoring) { |current_scoring, word|
       process_word(current_scoring, word)
-    end[:score]
+    }[:score]
   end
 
   def sentiment(string)
@@ -42,10 +42,10 @@ class Sentimental
   end
 
   def load_defaults
-    %w(slang en_words).each do |filename|
+    %w[slang en_words].each do |filename|
       load_from_json(File.dirname(__FILE__) + "/../data/#{filename}.json")
     end
-    load_influencers_from_json(File.dirname(__FILE__) + '/../data/influencers.json')
+    load_influencers_from_json(File.dirname(__FILE__) + "/../data/influencers.json")
   end
 
   def load_from(filename)
@@ -71,7 +71,7 @@ class Sentimental
   alias load_senti_file load_from
   alias load_senti_json load_from_json
 
-  alias_method :load_senti_file, :load_from
+  alias load_senti_file load_from
 
   private
 
@@ -86,14 +86,14 @@ class Sentimental
   end
 
   def extract_words(string)
-    string.to_s.downcase.scan(/([\w']+|\S{2,})/).flatten
+    string.to_s.downcase.scan(/([\p{L}']+|\S{2,})/).flatten
   end
 
   def extract_words_with_n_grams(string)
     words = extract_words(string)
-    1.upto(ngrams).map do |number|
+    1.upto(ngrams).flat_map { |number|
       words.each_cons(number).to_a
-    end.flatten(1).map { |word| word.join(" ") }
+    }.map { |word| word.join(" ") }
   end
 
   def influence_score
